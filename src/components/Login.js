@@ -14,20 +14,6 @@ const Login = () => {
   const password = useRef(null);
   const name = useRef(null);
 
-  if(!isSignInForm)
-  {
-    createUserWithEmailAndPassword(auth, email, password)
-  .then((userCredential) => {
-    // Signed up 
-    const user = userCredential.user;
-    // ...
-  })
-  .catch((error) => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    // ..
-  });
-  }
 
   const handleButtonClick = () => {
     //validate the form data
@@ -36,8 +22,26 @@ const Login = () => {
       password.current.value,
       name?.current?.value
     );
-    setErrorMessage(message);
+     setErrorMessage(message);
     console.log("message", message);
+
+  if(!isSignInForm)
+  {
+    createUserWithEmailAndPassword(auth, email.current.value, password.current.value)
+  .then((userCredential) => {
+    // Signed up 
+    const user = userCredential.user;
+    console.log(user);
+    // ...
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    setErrorMessage(errorMessage+ " " + errorCode );
+    // ..
+  });
+  }
+   
   };
 
   return (
