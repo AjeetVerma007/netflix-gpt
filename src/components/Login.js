@@ -1,6 +1,8 @@
 import React, { useRef, useState } from "react";
 import Header from "./Header";
 import { validateFormData } from "../utils/validate";
+import {  createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../utils/firebase"; // Ensure this import matches your firebase.js export
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
@@ -11,6 +13,21 @@ const Login = () => {
   const email = useRef(null);
   const password = useRef(null);
   const name = useRef(null);
+
+  if(!isSignInForm)
+  {
+    createUserWithEmailAndPassword(auth, email, password)
+  .then((userCredential) => {
+    // Signed up 
+    const user = userCredential.user;
+    // ...
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    // ..
+  });
+  }
 
   const handleButtonClick = () => {
     //validate the form data
