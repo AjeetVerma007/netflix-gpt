@@ -1,15 +1,20 @@
 import React, { useRef, useState } from "react";
 import Header from "./Header";
 import { validateFormData } from "../utils/validate";
-import { createUserWithEmailAndPassword,signInWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { auth } from "../utils/firebase"; // Ensure this import matches your firebase.js export
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
+
   const toggleSignInform = () => {
     setIsSignInForm(!isSignInForm);
   };
+
   const email = useRef(null);
   const password = useRef(null);
   const name = useRef(null);
@@ -22,7 +27,9 @@ const Login = () => {
       name?.current?.value
     );
     setErrorMessage(message);
+
     console.log("message", message);
+    if (message) return;
 
     if (!isSignInForm) {
       createUserWithEmailAndPassword(
