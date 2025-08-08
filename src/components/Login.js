@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import Header from "./Header";
 import { validateFormData } from "../utils/validate";
+import { useNavigate } from "react-router-dom";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -10,6 +11,7 @@ import { auth } from "../utils/firebase"; // Ensure this import matches your fir
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
+  const navigate = useNavigate();
 
   const toggleSignInform = () => {
     setIsSignInForm(!isSignInForm);
@@ -27,9 +29,10 @@ const Login = () => {
       name?.current?.value
     );
     setErrorMessage(message);
-
-    console.log("message", message);
     if (message) return;
+    if (message == null) {
+      setErrorMessage("User is valid");
+    }
 
     if (!isSignInForm) {
       createUserWithEmailAndPassword(
@@ -40,13 +43,17 @@ const Login = () => {
         .then((userCredential) => {
           // Signed up
           const user = userCredential.user;
-          console.log(user);
+          console.log("user:", user);
           // ...
         })
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
-          setErrorMessage(errorMessage + " " + errorCode);
+          if (errorCode === "auth/email-already-in-use") {
+            setErrorMessage("Email Address is already registered.");
+          } else {
+            setErrorMessage(errorMessage + " " + errorCode);
+          }
           // ..
         });
     } else {
@@ -59,12 +66,23 @@ const Login = () => {
           // Signed in
           const user = userCredential.user;
           console.log(user);
+          navigate("/browse");
           // ...
         })
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
-          setErrorMessage(errorMessage + " " + errorCode);
+
+          if (errorMessage.includes("auth/invalid-credential")) {
+            setErrorMessage("User not found.");
+          } else if (errorMessage.includes("auth/user-not-found")) {
+            setErrorMessage("User not found.");
+          } else if (errorMessage.includes("auth/wrong-password")) {
+            setErrorMessage("Incorrect password.");
+          } else {
+            setErrorMessage(errorMessage + " " + errorCode);
+          }
+          navigate("/");
         });
     }
   };
@@ -80,9 +98,9 @@ const Login = () => {
       </div>
       <form
         onSubmit={(e) => e.preventDefault()}
-        className="w-3/12 absolute p-12 my-36 mx-auto right-0 left-0 text-white rounded-lg bg-black/60"
+        className="w-11/12 sm:w-3/4 md:w-1/2 lg:w-2/5 xl:w-1/3 2xl:w-1/4 absolute p-8 sm:p-12 my-36 mx-auto right-0 left-0 text-white rounded-lg bg-black/60"
       >
-        <h1 className="font-bold text-3xl py-4">
+        <h1 className="font-bold text-2xl sm:text-3xl py-4">
           {isSignInForm ? "Sign In" : "Sign Up"}
         </h1>
 
@@ -91,7 +109,7 @@ const Login = () => {
             type="text"
             ref={name}
             placeholder="Full Name"
-            className="p-4 my-4 w-full bg-gray-700"
+            className="p-3 sm:p-4 my-4 w-full bg-gray-700"
           />
         )}
 
@@ -99,23 +117,26 @@ const Login = () => {
           type="text"
           ref={email}
           placeholder="Email Address"
-          className="p-4 my-4 w-full bg-gray-700"
+          className="p-3 sm:p-4 my-4 w-full bg-gray-700"
         />
 
         <input
           type="password"
           ref={password}
           placeholder="Password"
-          className="p-4 my-4 w-full bg-gray-700"
+          className="p-3 sm:p-4 my-4 w-full bg-gray-700"
         />
         <p className="text-red-500">{errorMessage}</p>
         <button
-          className="p-4 my-6 bg-red-700 w-full rounded-lg cursor-pointer"
+          className="p-3 sm:p-4 my-6 bg-red-700 w-full rounded-lg cursor-pointer"
           onClick={handleButtonClick}
         >
           {isSignInForm ? "Sign In" : "Sign Up"}
         </button>
-        <p className="py-4 cursor-pointer" onClick={toggleSignInform}>
+        <p
+          className="py-4 cursor-pointer text-sm sm:text-base"
+          onClick={toggleSignInform}
+        >
           {isSignInForm
             ? "New to Netflix? Sign up now."
             : "Already registered? Sign In now."}
